@@ -2,6 +2,7 @@ use crate::color::Color;
 use crate::constants::INFINITY;
 use crate::hittable::HitRecord;
 use crate::hittable::Hittable;
+use crate::interval::Interval;
 use crate::vector::{Point3, Vec3};
 
 pub struct Ray {
@@ -31,7 +32,7 @@ impl Ray {
         T: Hittable,
     {
         let mut hit_record = HitRecord::default();
-        if world.hit(self, 0.0, INFINITY, &mut hit_record) {
+        if world.hit(self, Interval::new(0.0, INFINITY), &mut hit_record) {
             return (hit_record.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
         }
         let unit_direction = &self.direction.normalize();
