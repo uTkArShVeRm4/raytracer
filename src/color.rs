@@ -9,9 +9,9 @@ impl Color {
         let g = self.y();
         let b = self.z();
 
-        let rbyte = (256.0 * intensity.clamp(r)) as u32;
-        let gbyte = (256.0 * intensity.clamp(g)) as u32;
-        let bbyte = (256.0 * intensity.clamp(b)) as u32;
+        let rbyte = (255.0 * intensity.clamp(r)) as u32;
+        let gbyte = (255.0 * intensity.clamp(g)) as u32;
+        let bbyte = (255.0 * intensity.clamp(b)) as u32;
         format!("{} {} {}\n", rbyte, gbyte, bbyte)
     }
 }
