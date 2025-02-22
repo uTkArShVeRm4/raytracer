@@ -4,9 +4,9 @@ use raytracer::hittable::HittableList;
 use raytracer::sphere::Sphere;
 use raytracer::vector::Point3;
 
-fn degrees_to_radians(degrees: f64) -> f64 {
-    degrees * PI / 180.0
-}
+//fn degrees_to_radians(degrees: f64) -> f64 {
+//    degrees * PI / 180.0
+//}
 
 fn main() {
     // World
@@ -18,5 +18,6 @@ fn main() {
     camera.aspect_ratio = 16.0 / 9.0;
     camera.image_width = 400;
     camera.samples_per_pixel = 100;
+    camera.max_depth = 50;
     camera.render(&world);
 }

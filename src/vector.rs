@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use crate::utils::{random_f64, random_f64_in_range};
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Vec3 {
     x: f64,
@@ -12,6 +14,40 @@ pub type Point3 = Vec3;
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
         Vec3 { x, y, z }
+    }
+
+    pub fn random() -> Vec3 {
+        Vec3 {
+            x: random_f64(),
+            y: random_f64(),
+            z: random_f64(),
+        }
+    }
+
+    pub fn random_in_range(min: f64, max: f64) -> Vec3 {
+        Vec3 {
+            x: random_f64_in_range(min, max),
+            y: random_f64_in_range(min, max),
+            z: random_f64_in_range(min, max),
+        }
+    }
+
+    pub fn random_unit_vector() -> Vec3 {
+        loop {
+            let p = Vec3::random_in_range(-1.0, 1.0);
+            let l = p.length_squared();
+            if l > 1e-160 && l <= 1.0 {
+                return p / l.sqrt();
+            }
+        }
+    }
+
+    pub fn random_unit_vector_on_hemisphere(normal: &Vec3) -> Vec3 {
+        let on_spher = Vec3::random_unit_vector();
+        if on_spher.dot(normal) > 0.0 {
+            return on_spher;
+        }
+        on_spher * -1.0
     }
 
     pub fn x(&self) -> f64 {

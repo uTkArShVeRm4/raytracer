@@ -8,6 +8,7 @@ pub struct Camera {
     pub aspect_ratio: f64,
     pub image_width: u32,
     pub samples_per_pixel: u32,
+    pub max_depth: u32, // Number of ray bounces allowed
 
     image_height: u32,
     pixel_sample_scale: f64,
@@ -22,6 +23,7 @@ impl Camera {
         let mut c = Camera::default();
         c.aspect_ratio = 1.0;
         c.image_width = 100;
+        c.max_depth = 10;
         c
     }
     pub fn render<T>(&mut self, world: &T)
@@ -38,7 +40,7 @@ impl Camera {
                 let mut pixel_color = Color::new(0.0, 0.0, 0.0);
                 for _ in 0..self.samples_per_pixel {
                     let ray = self.get_ray(i, j);
-                    pixel_color += ray.color(world);
+                    pixel_color += ray.color(self.max_depth.clone(), world);
                 }
                 print!("{}", (pixel_color * self.pixel_sample_scale).to_string());
             }
