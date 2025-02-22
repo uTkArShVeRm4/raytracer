@@ -4,6 +4,10 @@ Learning about ray tracing from this [[book]](https://raytracing.github.io/books
 
 # Renders
 
+## First render
+
+![Output](https://github.com/utkarshverma/raytracer/image.ppm)
+
 ## Antialiasing
 
 ![Output](https://github.com/utkarshverma/raytracer/image2.ppm)
