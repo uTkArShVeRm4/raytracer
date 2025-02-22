@@ -1,5 +1,4 @@
 use raytracer::camera::Camera;
-use raytracer::constants::PI;
 use raytracer::hittable::HittableList;
 use raytracer::sphere::Sphere;
 use raytracer::vector::Point3;
@@ -19,5 +18,6 @@ fn main() {
     camera.image_width = 400;
     camera.samples_per_pixel = 100;
     camera.max_depth = 50;
-    camera.render(&world);
+    camera.threads = 8;
+    camera.render(world);
 }
