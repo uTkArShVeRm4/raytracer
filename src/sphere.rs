@@ -48,4 +48,12 @@ impl Hittable for Sphere {
         rec.material = self.material.clone();
         true
     }
+
+    fn clone_box(&self) -> Box<dyn Hittable> {
+        Box::new(Sphere {
+            center: self.center,
+            radius: self.radius,
+            material: self.material.clone_box(),
+        })
+    }
 }

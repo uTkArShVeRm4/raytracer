@@ -3,15 +3,15 @@ use crate::hittable::Hittable;
 use crate::ray::Ray;
 use crate::utils::sample_square;
 use crate::vector::{Point3, Vec3};
-use std::sync::Arc;
-use std::thread;
+
+use parallel_executor::parallel_iterator::ParallelIterator;
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Camera {
     pub aspect_ratio: f64,
     pub image_width: u32,
     pub samples_per_pixel: u32,
     pub max_depth: u32, // Number of ray bounces allowed
-    pub threads: u32,
 
     image_height: u32,
     pixel_sample_scale: f64,
@@ -29,69 +29,45 @@ impl Camera {
         c.max_depth = 10;
         c
     }
-    pub fn render<T>(&mut self, world: T)
+    pub fn render<T>(mut self, world: T)
     where
-        T: Hittable + Sync + 'static,
+        T: Hittable + Send + Clone + 'static, // Clone for each thread, Send for parallel execution
     {
         self.initialize();
 
         // Print header
         println!("P3\n{} {}\n255", self.image_width, self.image_height);
 
-        // Create thread-safe reference to world
-        let world = Arc::new(world);
+        // Flatten the 2D loop into a 1D iterator
+        let pixel_indices: Vec<(u32, u32)> = (0..self.image_height)
+            .flat_map(|j| (0..self.image_width).map(move |i| (i, j)))
+            .collect();
 
-        // Determine number of threads and chunk size
-        let num_threads = self.threads;
-        let chunk_size = (self.image_height + num_threads - 1) / num_threads;
+        // Parallel processing of pixels
+        let mut colors: Vec<(u32, u32, String)> =
+            pixel_indices.into_iter().par_map(100, move |(i, j)| {
+                let thread_renderer = self.clone(); // Clone renderer for each thread
+                let thread_world = world.clone(); // Clone world for each thread
 
-        // Spawn threads
-        let mut handles = vec![];
-
-        for thread_id in 0..num_threads {
-            // Calculate this thread's row range
-            let start_row = thread_id * chunk_size;
-            let end_row = (start_row + chunk_size).min(self.image_height);
-
-            // Clone Arc for this thread
-            let world = Arc::clone(&world);
-
-            // Clone renderer for this thread
-            let renderer = self.clone();
-
-            // Spawn thread
-            let handle = thread::spawn(move || {
-                let mut output = String::new();
-
-                for j in start_row..end_row {
-                    eprintln!("Thread {} processing row {}", thread_id, j);
-
-                    for i in 0..renderer.image_width {
-                        let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-
-                        for _ in 0..renderer.samples_per_pixel {
-                            let ray = renderer.get_ray(i, j);
-                            pixel_color += ray.color(renderer.max_depth.clone(), &*world);
-                        }
-
-                        output.push_str(&(pixel_color * renderer.pixel_sample_scale).to_string());
-                    }
-                    output.push('\n');
+                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+                for _ in 0..thread_renderer.samples_per_pixel {
+                    let ray = thread_renderer.get_ray(i, j);
+                    pixel_color += ray.color(thread_renderer.max_depth.clone(), &thread_world);
                 }
-
-                (start_row, output)
+                //eprintln!("processing row {}", j);
+                (
+                    i,
+                    j,
+                    (pixel_color * thread_renderer.pixel_sample_scale).to_string(),
+                )
             });
 
-            handles.push(handle);
-        }
+        // Sort by (j, i) to ensure correct row-wise order
+        colors.sort_by(|a, b| a.1.cmp(&b.1).then(a.0.cmp(&b.0)));
 
-        // Collect and sort results
-        let mut results: Vec<_> = handles.into_iter().map(|h| h.join().unwrap()).collect();
-        results.sort_by_key(|(row, _)| *row);
-
-        // Print results in order
-        for (_, output) in results {
-            print!("{}", output);
+        // Print the colors in order
+        for (_, _, color) in colors {
+            print!("{}", color);
         }
     }
 

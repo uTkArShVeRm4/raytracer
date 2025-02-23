@@ -27,10 +27,18 @@ impl HitRecord {
 
 pub trait Hittable: Send + Sync {
     fn hit(&self, ray: &Ray, ray_t: Interval, hit_record: &mut HitRecord) -> bool;
+    fn clone_box(&self) -> Box<dyn Hittable>;
 }
 
+#[derive(Default, Clone)]
 pub struct HittableList {
     list: Vec<Box<dyn Hittable>>,
+}
+
+impl Clone for Box<dyn Hittable> {
+    fn clone(&self) -> Box<dyn Hittable> {
+        self.clone_box()
+    }
 }
 
 impl HittableList {
@@ -60,5 +68,10 @@ impl Hittable for HittableList {
             }
         }
         hit_anything
+    }
+    fn clone_box(&self) -> Box<dyn Hittable> {
+        Box::new(HittableList {
+            list: self.list.iter().map(|x| x.clone_box()).collect(),
+        })
     }
 }

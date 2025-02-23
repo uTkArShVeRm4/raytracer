@@ -4,4 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+parallel_executor = { git = "https://github.com/utkarshverm4/parallel_executor", version = "0.1.0" }
 rand = "0.8.5"
