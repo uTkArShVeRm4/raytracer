@@ -29,3 +29,7 @@ Learning about ray tracing from this [book](https://raytracing.github.io/books/R
 ## Refraction without TIR
 
 ![Output](renders/image6.png)
+
+## Refraction with TIR
+
+![Output](renders/image7.png)
