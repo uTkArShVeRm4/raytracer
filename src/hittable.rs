@@ -1,5 +1,6 @@
 use crate::{
     interval::Interval,
+    material::Material,
     ray::Ray,
     vector::{Point3, Vec3},
 };
@@ -10,6 +11,7 @@ pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub front_face: bool,
+    pub material: Box<dyn Material>,
 }
 
 impl HitRecord {

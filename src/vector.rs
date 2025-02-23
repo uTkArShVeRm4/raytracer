@@ -16,6 +16,11 @@ impl Vec3 {
         Vec3 { x, y, z }
     }
 
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
+    }
+
     pub fn random() -> Vec3 {
         Vec3 {
             x: random_f64(),
@@ -84,6 +89,11 @@ impl Vec3 {
 
     pub fn normalize(&self) -> Vec3 {
         self / self.length()
+    }
+
+    pub fn reflect(&self, normal: &Vec3) -> Vec3 {
+        let b = &self.dot(normal) * 2.0;
+        self.clone() - (normal * b)
     }
 }
 impl std::ops::Add for Vec3 {
@@ -161,6 +171,19 @@ where
         }
     }
 }
+
+impl std::ops::Mul for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, other: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x * other.x,
+            y: self.y * other.y,
+            z: self.z * other.z,
+        }
+    }
+}
+
 impl<T> std::ops::Mul<T> for &Vec3
 where
     T: Into<f64>,
