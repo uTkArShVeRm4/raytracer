@@ -33,3 +33,7 @@ Learning about ray tracing from this [book](https://raytracing.github.io/books/R
 ## Refraction with TIR
 
 ![Output](renders/image7.png)
+
+## Hollow sphere with Schlick's approximation
+
+![Output](renders/image8.png)

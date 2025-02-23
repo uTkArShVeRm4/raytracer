@@ -1,6 +1,7 @@
 use crate::color::Color;
 use crate::hittable::HitRecord;
 use crate::ray::Ray;
+use crate::utils::random_f64;
 use crate::vector::Vec3;
 
 pub struct DefaultMaterial {}
@@ -120,6 +121,13 @@ impl Dielectric {
     pub fn new(ref_idx: f64) -> Self {
         Dielectric { ref_idx }
     }
+
+    pub fn reflectance(&self, cos_theta: f64, ri: f64) -> f64 {
+        // Schlick's approximation
+        let r0 = (1.0 - ri) / (1.0 + ri);
+        let r0 = r0 * r0;
+        r0 + (1.0 - r0) * (1.0 - cos_theta).powf(5.0)
+    }
 }
 impl Material for Dielectric {
     fn scatter(
@@ -142,7 +150,7 @@ impl Material for Dielectric {
 
         let cannot_refract = ri * sin_theta > 1.0;
         let direction: Vec3;
-        if cannot_refract {
+        if cannot_refract || self.reflectance(cos_theta, ri) > random_f64() {
             direction = unit_direction.reflect(&hit_record.normal);
         } else {
             direction = unit_direction.refract(&hit_record.normal, ri);
