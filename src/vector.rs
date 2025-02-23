@@ -55,6 +55,15 @@ impl Vec3 {
         on_spher * -1.0
     }
 
+    pub fn random_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3::new(random_f64(), random_f64(), 0.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
     pub fn x(&self) -> f64 {
         self.x
     }

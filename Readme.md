@@ -42,3 +42,11 @@ Learning about ray tracing from this [book](https://raytracing.github.io/books/R
 
 ![Output](renders/image9.png)
 ![Output](renders/image10.png)
+
+## Depth of field
+
+![Output](renders/image11.png)
+
+## Final Render with multiple balls
+
+![Output](renders/image12.png)
