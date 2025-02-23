@@ -3,11 +3,7 @@ use raytracer::color::Color;
 use raytracer::hittable::HittableList;
 use raytracer::material::{Dielectric, Lambertian, Metal};
 use raytracer::sphere::Sphere;
-use raytracer::vector::Point3;
-
-//fn degrees_to_radians(degrees: f64) -> f64 {
-//    degrees * PI / 180.0
-//}
+use raytracer::vector::{Point3, Vec3};
 
 fn main() {
     // World
@@ -51,6 +47,12 @@ fn main() {
     camera.image_width = 1080;
     camera.samples_per_pixel = 500;
     camera.max_depth = 50;
+
+    camera.vfov = 20.0;
+    camera.look_from = Point3::new(-2.0, 2.0, 1.0);
+    camera.look_at = Point3::new(0.0, 0.0, -1.0);
+    camera.vup = Vec3::new(0.0, 1.0, 0.0);
+
     camera.multithreaded = true;
     camera.render(world);
 }

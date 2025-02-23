@@ -37,3 +37,8 @@ Learning about ray tracing from this [book](https://raytracing.github.io/books/R
 ## Hollow sphere with Schlick's approximation
 
 ![Output](renders/image8.png)
+
+## Camera displacement and FOV
+
+![Output](renders/image9.png)
+![Output](renders/image10.png)

@@ -1,4 +1,5 @@
 use rand::{self, Rng};
+use std::f64::consts::PI;
 
 use crate::vector::Vec3;
 
@@ -24,4 +25,8 @@ pub fn linear_to_gamma(linear_component: f64) -> f64 {
         return linear_component.sqrt();
     }
     return 0.0;
+}
+
+pub fn degrees_to_radians(degrees: f64) -> f64 {
+    degrees * PI / 180.0
 }
