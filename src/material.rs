@@ -111,3 +111,39 @@ impl Material for Metal {
         })
     }
 }
+
+pub struct Dielectric {
+    ref_idx: f64,
+}
+
+impl Dielectric {
+    pub fn new(ref_idx: f64) -> Self {
+        Dielectric { ref_idx }
+    }
+}
+impl Material for Dielectric {
+    fn scatter(
+        &self,
+        ray_in: &Ray,
+        hit_record: &HitRecord,
+        attenuation: &mut Color,
+        scattered: &mut Ray,
+    ) -> bool {
+        *attenuation = Color::new(1.0, 1.0, 1.0);
+        let ri = if hit_record.front_face {
+            1.0 / self.ref_idx
+        } else {
+            self.ref_idx
+        };
+        let unit_direction = ray_in.direction().normalize();
+        let refracted_ray = unit_direction.refract(&hit_record.normal, ri);
+        *scattered = Ray::new(hit_record.p, refracted_ray);
+        true
+    }
+
+    fn clone_box(&self) -> Box<dyn Material> {
+        Box::new(Dielectric {
+            ref_idx: self.ref_idx,
+        })
+    }
+}

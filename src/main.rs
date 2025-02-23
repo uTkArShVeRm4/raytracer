@@ -1,7 +1,7 @@
 use raytracer::camera::Camera;
 use raytracer::color::Color;
 use raytracer::hittable::HittableList;
-use raytracer::material::{Lambertian, Metal};
+use raytracer::material::{Dielectric, Lambertian, Metal};
 use raytracer::sphere::Sphere;
 use raytracer::vector::Point3;
 
@@ -15,7 +15,7 @@ fn main() {
 
     let material_ground = Box::new(Lambertian::new(Color::new(0.8, 0.8, 0.0)));
     let material_center = Box::new(Lambertian::new(Color::new(0.1, 0.2, 0.5)));
-    let material_left = Box::new(Metal::new(Color::new(0.8, 0.8, 0.8), 0.0));
+    let material_left = Box::new(Dielectric::new(1.5));
     let material_right = Box::new(Metal::new(Color::new(0.8, 0.6, 0.2), 0.0));
 
     world.add(Box::new(Sphere::new(
@@ -41,8 +41,9 @@ fn main() {
 
     let mut camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
-    camera.image_width = 400;
-    camera.samples_per_pixel = 100;
+    camera.image_width = 1080;
+    camera.samples_per_pixel = 500;
     camera.max_depth = 50;
+    camera.multithreaded = true;
     camera.render(world);
 }

@@ -25,3 +25,7 @@ Learning about ray tracing from this [book](https://raytracing.github.io/books/R
 ### Metal with fuzz
 
 ![Output](renders/image5.png)
+
+## Refraction without TIR
+
+![Output](renders/image6.png)

@@ -12,6 +12,7 @@ pub struct Camera {
     pub image_width: u32,
     pub samples_per_pixel: u32,
     pub max_depth: u32, // Number of ray bounces allowed
+    pub multithreaded: bool,
 
     image_height: u32,
     pixel_sample_scale: f64,
@@ -38,36 +39,49 @@ impl Camera {
         // Print header
         println!("P3\n{} {}\n255", self.image_width, self.image_height);
 
-        // Flatten the 2D loop into a 1D iterator
-        let pixel_indices: Vec<(u32, u32)> = (0..self.image_height)
-            .flat_map(|j| (0..self.image_width).map(move |i| (i, j)))
-            .collect();
+        if self.multithreaded {
+            // Flatten the 2D loop into a 1D iterator
+            let pixel_indices: Vec<(u32, u32)> = (0..self.image_height)
+                .flat_map(|j| (0..self.image_width).map(move |i| (i, j)))
+                .collect();
 
-        // Parallel processing of pixels
-        let mut colors: Vec<(u32, u32, String)> =
-            pixel_indices.into_iter().par_map(100, move |(i, j)| {
-                let thread_renderer = self.clone(); // Clone renderer for each thread
-                let thread_world = world.clone(); // Clone world for each thread
+            // Parallel processing of pixels
+            let mut colors: Vec<(u32, u32, String)> =
+                pixel_indices.into_iter().par_map(100, move |(i, j)| {
+                    let thread_renderer = self.clone(); // Clone renderer for each thread
+                    let thread_world = world.clone(); // Clone world for each thread
 
-                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-                for _ in 0..thread_renderer.samples_per_pixel {
-                    let ray = thread_renderer.get_ray(i, j);
-                    pixel_color += ray.color(thread_renderer.max_depth.clone(), &thread_world);
+                    let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+                    for _ in 0..thread_renderer.samples_per_pixel {
+                        let ray = thread_renderer.get_ray(i, j);
+                        pixel_color += ray.color(thread_renderer.max_depth.clone(), &thread_world);
+                    }
+                    //eprintln!("processing row {}", j);
+                    (
+                        i,
+                        j,
+                        (pixel_color * thread_renderer.pixel_sample_scale).to_string(),
+                    )
+                });
+
+            // Sort by (j, i) to ensure correct row-wise order
+            colors.sort_by(|a, b| a.1.cmp(&b.1).then(a.0.cmp(&b.0)));
+
+            // Print the colors in order
+            for (_, _, color) in colors {
+                print!("{}", color);
+            }
+        } else {
+            for j in 0..self.image_height {
+                for i in 0..self.image_width {
+                    let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+                    for _ in 0..self.samples_per_pixel {
+                        let ray = self.get_ray(i, j);
+                        pixel_color += ray.color(self.max_depth.clone(), &world);
+                    }
+                    print!("{}", (pixel_color * self.pixel_sample_scale).to_string());
                 }
-                //eprintln!("processing row {}", j);
-                (
-                    i,
-                    j,
-                    (pixel_color * thread_renderer.pixel_sample_scale).to_string(),
-                )
-            });
-
-        // Sort by (j, i) to ensure correct row-wise order
-        colors.sort_by(|a, b| a.1.cmp(&b.1).then(a.0.cmp(&b.0)));
-
-        // Print the colors in order
-        for (_, _, color) in colors {
-            print!("{}", color);
+            }
         }
     }
 
